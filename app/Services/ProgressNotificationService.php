@@ -17,17 +17,19 @@ class ProgressNotificationService
      * 
      * @param string $title Título da notificação
      * @param int $userId ID do usuário
+     * @param string $userName Nome do usuário associado. // Novo parâmetro
      * @param int $progress Valor do progresso (0-100)
      * @return string ID da notificação
      */
-    public function addNotification(string $title, int $userId, int $progress = 0)
+    public function addNotification(string $title, int $userId, string $userName, int $progress = 0)
     {
-        $notificationId = uniqid('notification_');
+        $notificationId = self::NOTIFICATION_KEY . '::' . $userId;
         
         $notification = [
             'id' => $notificationId,
             'title' => $title,
             'user_id' => $userId,
+            'userName' => $userName,
             'progress' => $progress,
             'created_at' => now()->timestamp
         ];
@@ -51,14 +53,13 @@ class ProgressNotificationService
     {
         $notifications = $this->getNotifications();
         
-        if (!isset($notifications[$notificationId])) {
-            return false;
+        if (isset($notifications[$notificationId])) {
+            $notifications[$notificationId]['progress'] = max(0, min(100, $progress)); // Garante que o progresso fique entre 0 e 100
+            Redis::set(self::NOTIFICATION_KEY, json_encode($notifications));
+            return true;
         }
-        
-        $notifications[$notificationId]['progress'] = min(100, max(0, $progress));
-        Redis::set(self::NOTIFICATION_KEY, json_encode($notifications));
-        
-        return true;
+
+        return false;
     }
     
     /**
@@ -110,5 +111,22 @@ class ProgressNotificationService
         return array_filter($allNotifications, function ($notification) use ($userId) {
             return $notification['user_id'] == $userId;
         });
+    }
+    
+    /**
+     * Exclui uma notificação específica do Redis
+     *
+     * @param string $notificationId ID da notificação a ser excluída
+     * @return bool
+     */
+    public function deleteNotification(string $notificationId): bool
+    {
+        // Obtém a conexão com o Redis
+        $redis = Redis::connection();
+        
+        // Exclui a notificação
+        $deleted = $redis->del("notification:{$notificationId}");
+        $this->removeNotification($notificationId);
+        return $deleted > 0;
     }
 }

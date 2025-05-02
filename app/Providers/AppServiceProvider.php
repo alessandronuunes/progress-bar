@@ -26,11 +26,7 @@ class AppServiceProvider extends ServiceProvider
         //
         FilamentView::registerRenderHook(
             PanelsRenderHook::CONTENT_START,
-            fn (): View => view('progress-bar'),
+            fn (): string => Blade::render('@livewire(\'progress-bar-component\')'),
         );
-        // FilamentView::registerRenderHook(
-        //     PanelsRenderHook::CONTENT_START,
-        //     fn (): string => Blade::render('@livewire(\'progress-bar-component\')'),
-        // );
     }
 }

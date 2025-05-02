@@ -5,17 +5,18 @@ namespace App\Filament\Resources;
 use Filament\Forms;
 use App\Models\User;
 use Filament\Tables;
+use Livewire\Livewire;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Jobs\RecalculateUserJob;
 use Filament\Resources\Resource;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
+use App\Services\ProgressNotificationService;
 use Filament\Forms\Components\DateTimePicker;
 use App\Filament\Resources\UserResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\UserResource\RelationManagers;
-use App\Services\ProgressNotificationService;
-use App\Jobs\RecalculateUserJob;
 
 class UserResource extends Resource
 {
@@ -83,16 +84,16 @@ class UserResource extends Resource
                             ->columnSpanFull()
                             ->required(),
                     ])
-                    ->action(function (array $data, User $record): void {
+                    ->action(function (array $data, User $record, $livewire): void {
                         $userId = auth()->user()->id;
                         
                         // Inicializa o serviço de notificação de progresso
                         $progressService = app(ProgressNotificationService::class);
-                        
                         // Cria uma notificação com progresso inicial 0
                         $notificationId = $progressService->addNotification(
                             "Recalculando T.M.E para {$record->name}",
                             $userId,
+                            auth()->user()->name,
                             0
                         );
                         
@@ -104,7 +105,8 @@ class UserResource extends Resource
                             $userId,
                             $notificationId
                         );
-                        
+                        // Dispara o evento para o componente Livewire
+                        $livewire->dispatch('showProgressBar');
                         // Notifica o usuário que o processo foi iniciado
                         Notification::make()
                             ->title('Recálculo iniciado')

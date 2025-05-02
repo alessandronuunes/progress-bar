@@ -1,62 +1,120 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Projeto Barra de Progresso com FilamentPHP e Livewire
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Este projeto demonstra a implementação de uma barra de progresso em tempo real dentro de um painel FilamentPHP. Ele utiliza Livewire para atualizações dinâmicas, Redis para armazenar o estado do progresso e Jobs em fila do Laravel para processamento em segundo plano.
 
-## About Laravel
+## Funcionalidades
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+*   Painel administrativo construído com FilamentPHP.
+*   Ação customizada em um Resource do Filament (`UserResource`) para disparar um job em fila.
+*   Job (`RecalculateUserJob`) que simula um processo demorado e atualiza o progresso.
+*   Serviço (`ProgressNotificationService`) para gerenciar o estado das notificações de progresso usando Redis.
+*   Componente Livewire (`ProgressBarComponent`) que busca e exibe o progresso das notificações ativas usando polling.
+*   Exibição do nome do usuário que iniciou o job.
+*   Possibilidade de remover/cancelar a visualização de uma notificação de progresso.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Pré-requisitos
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Antes de começar, garanta que você tenha o seguinte instalado em seu ambiente (macOS):
 
-## Learning Laravel
+*   PHP (versão compatível com o Laravel usado no projeto, ex: 8.1+)
+*   Composer
+*   Node.js e npm
+*   Servidor Redis
+*   Um servidor web local (Ex: Laravel Herd, Valet, ou `php artisan serve`)
+*   Um gerenciador de filas configurado (Ex: Supervisor) ou rodar o worker manualmente.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Instalação
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+Siga os passos abaixo para configurar o projeto localmente:
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+1.  **Clonar o repositório:**
+    ```bash
+    git clone https://github.com/alessandronuunes/progress-bar.git
+    cd progress-bar
+    ```
 
-## Laravel Sponsors
+2.  **Instalar dependências PHP:**
+    ```bash
+    composer install
+    ```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+3.  **Instalar dependências Node.js:**
+    ```bash
+    npm install
+    ```
 
-### Premium Partners
+4.  **Compilar assets:**
+    ```bash
+    npm run build
+    ```
+    *(Ou `npm run dev` para desenvolvimento)*
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development/)**
-- **[Active Logic](https://activelogic.com)**
+5.  **Configurar ambiente:**
+    *   Copie o arquivo de exemplo de ambiente:
+        ```bash
+        cp .env.example .env
+        ```
+    *   Gere a chave da aplicação:
+        ```bash
+        php artisan key:generate
+        ```
+    *   Edite o arquivo `.env` e configure as variáveis de ambiente, especialmente:
+        *   `DB_CONNECTION`, `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` (configurações do seu banco de dados)
+        *   `REDIS_HOST`, `REDIS_PASSWORD`, `REDIS_PORT` (configurações do seu servidor Redis)
+        *   `QUEUE_CONNECTION=redis` (para usar Redis como driver da fila)
 
-## Contributing
+6.  **Executar as migrações do banco de dados:**
+    ```bash
+    php artisan migrate
+    ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+7.  **Criar o usuário administrador do Filament:**
+    *   Execute o comando abaixo e siga as instruções no terminal para criar seu primeiro usuário:
+        ```bash
+        php artisan make:filament-user
+        ```
+    *   Você será solicitado a fornecer nome, e-mail e senha para o novo usuário administrador.
 
-## Code of Conduct
+## Executando a Aplicação
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+1.  **Iniciar o servidor web:**
+    *   Se estiver usando Laravel Herd ou Valet, o site deve estar acessível automaticamente.
+    *   Caso contrário, use:
+        ```bash
+        php artisan serve
+        ```
 
-## Security Vulnerabilities
+2.  **Iniciar o servidor Redis:**
+    *   Certifique-se de que seu servidor Redis esteja rodando. Se instalado via Homebrew:
+        ```bash
+        brew services start redis
+        ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+3.  **Iniciar o Queue Worker:**
+    *   Para processar os jobs em segundo plano, execute o worker. Para desenvolvimento, você pode rodar:
+        ```bash
+        php artisan queue:work --queue=default
+        ```
+    *   **Importante:** Para produção, configure um gerenciador de processos como o Supervisor para manter o worker rodando de forma contínua e confiável.
 
-## License
+## Como Usar
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-# progress-bar
+1.  Acesse o painel administrativo do Filament (normalmente em `/admin`).
+2.  Faça login com um usuário (ex: `test@example.com` / `password` se você rodou o seeder).
+3.  Navegue até o recurso "Users" no menu lateral.
+4.  Na tabela de usuários, localize a coluna de ações e clique no ícone de gráfico ("Recalcular") para um usuário específico.
+5.  Preencha as datas (opcional, já vêm com valores padrão) e confirme a ação.
+6.  Uma barra de progresso aparecerá no topo da página, mostrando o andamento do recálculo para aquele usuário, incluindo quem iniciou o processo.
+7.  A barra será atualizada automaticamente até atingir 100%.
+8.  Você pode clicar no ícone 'X' ao lado da barra de progresso para removê-la da visualização.
+
+## Componentes Chave
+
+*   **`app/Filament/Resources/UserResource.php`**: Contém a definição da tabela de usuários e a ação customizada `recalc`.
+*   **`app/Jobs/RecalculateUserJob.php`**: O job que é despachado para a fila e simula o trabalho em segundo plano, atualizando o progresso.
+*   **`app/Services/ProgressNotificationService.php`**: Serviço responsável por criar, atualizar e remover as informações de progresso no Redis.
+*   **`app/Livewire/ProgressBarComponent.php`**: Componente Livewire que busca periodicamente (`wire:poll`) as notificações no Redis e as renderiza.
+*   **`resources/views/livewire/progress-bar-component.blade.php`**: A view do componente Livewire, responsável pela estrutura HTML e estilos (Tailwind CSS) da barra de progresso.
+*   **`app/Providers/AppServiceProvider.php`**: Registra o hook do Filament para renderizar o componente Livewire (`PanelsRenderHook::CONTENT_START`).
+*   **Redis**: Utilizado como backend para armazenar o estado das notificações de progresso de forma temporária.
+*   **Laravel Queues**: Sistema de filas do Laravel para processamento assíncrono dos jobs.
