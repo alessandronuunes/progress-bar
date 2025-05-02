@@ -118,3 +118,19 @@ Siga os passos abaixo para configurar o projeto localmente:
 *   **`app/Providers/AppServiceProvider.php`**: Registra o hook do Filament para renderizar o componente Livewire (`PanelsRenderHook::CONTENT_START`).
 *   **Redis**: Utilizado como backend para armazenar o estado das notificações de progresso de forma temporária.
 *   **Laravel Queues**: Sistema de filas do Laravel para processamento assíncrono dos jobs.
+
+## Demonstração
+
+Aqui estão algumas imagens mostrando a funcionalidade em ação:
+
+**1. Ação de Recalcular no UserResource:**
+![Ação de Recalcular](./images/image1.png)
+
+**2. Modal para definir o período:**
+![Modal de Período](./images/image2.png)
+
+**3. Barra de Progresso em Andamento:**
+![Barra de Progresso](./images/image3.png)
+
+**4. Barras de Progresso:**
+![Múltiplas Barras](./images/image4.png)
