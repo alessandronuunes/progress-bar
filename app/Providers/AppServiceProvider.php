@@ -2,7 +2,11 @@
 
 namespace App\Providers;
 
+use Filament\View\PanelsRenderHook;
+use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Filament\Support\Facades\FilamentView;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,5 +24,13 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         //
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::CONTENT_START,
+            fn (): View => view('progress-bar'),
+        );
+        // FilamentView::registerRenderHook(
+        //     PanelsRenderHook::CONTENT_START,
+        //     fn (): string => Blade::render('@livewire(\'progress-bar-component\')'),
+        // );
     }
 }
