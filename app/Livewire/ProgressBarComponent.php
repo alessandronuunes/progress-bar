@@ -3,8 +3,9 @@
 namespace App\Livewire;
 
 use Livewire\Component;
-use App\Services\ProgressNotificationService;
 use Livewire\Attributes\On;
+use Filament\Notifications\Notification;
+use App\Services\ProgressNotificationService;
 
 class ProgressBarComponent extends Component
 {
@@ -40,6 +41,16 @@ class ProgressBarComponent extends Component
     // Método para excluir uma notificação específica
     public function deleteNotification($notificationId)
     {
+        // antes de excluir eu verifico se a progresso esta em 100%
+        if ($this->notifications[$notificationId]['progress'] != 100) {
+            // exclui a notificação
+            // disparo uma notificao que nao pode ser excluida pois ainda nao acabou a tarefa
+            Notification::make()
+                ->title('Não é possível excluir a notificação, ainda não acabou a tarefa!')
+                ->warning()
+                ->send();
+            return;
+        }
         $progressService = app(ProgressNotificationService::class);
         $progressService->deleteNotification($notificationId);
         $this->getNotifications();

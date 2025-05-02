@@ -1,10 +1,10 @@
 {{-- Adiciona wire:poll.1s.visible ao elemento principal do componente --}}
 {{-- Isso chamará o método 'getNotifications' a cada 1 segundo, mas SOMENTE quando este div estiver visível na tela --}}
-<div wire:poll.1s.visible="getNotifications">
+<div >
     {{-- Verifica se o status é verdadeiro (se há notificações a serem mostradas) --}}
     @if($this->status && !empty($notifications))
         {{-- Container principal com estilos Tailwind --}}
-        <div class="relative rounded-md p-4 mt-1 w-full bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
+        <div wire:poll.1s.visible="getNotifications" class="relative rounded-md p-4 mt-1 w-full bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
             {{-- Itera sobre cada notificação --}}
             @foreach($notifications as $id => $notification)
                 <div class="">
